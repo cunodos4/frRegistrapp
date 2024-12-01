@@ -1,0 +1,119 @@
+/* Estilos generales */
+body {
+    --ion-background-color: #f4f4f9;
+    --ion-color-primary: #4CAF50;
+    --ion-color-secondary: #8BC34A;
+    --ion-color-tertiary: #00BCD4;
+    --ion-color-light: #FFFFFF;
+    --ion-color-dark: #333333;
+}
+
+
+ion-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #4CAF50, #00BCD4);
+    color: var(--ion-color-light);
+    font-family: 'Poppins', sans-serif;
+}
+
+#wrapper {
+    background: var(--ion-color-light);
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+#wave {
+    margin-bottom: 1rem;
+    animation: waveAnimation 2s infinite;
+    color: var(--ion-color-primary);
+}
+
+@keyframes waveAnimation {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(-10deg); }
+    100% { transform: rotate(0deg); }
+}
+
+h3 {
+    color: var(--ion-color-dark);
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+}
+
+ion-item {
+    --background: transparent;
+    --border-color: var(--ion-color-primary);
+    --border-radius: 8px;
+    --min-height: 50px;
+    margin-bottom: 1.2rem;
+}
+
+ion-input {
+    --placeholder-color: var(--ion-color-dark);
+    --background: var(--ion-color-light);
+    --padding-start: 10px;
+    border: 1px solid var(--ion-color-primary);
+    border-radius: 8px;
+    color: var(--ion-color-dark);
+}
+
+#subBtn {
+    width: 100%;
+    --background: var(--ion-color-primary);
+    --border-radius: 8px;
+    --box-shadow: 0 10px 20px rgba(0, 188, 212, 0.3);
+    --ripple-color: var(--ion-color-light);
+    transition: background 0.3s ease;
+}
+
+
+
+#subBtn:hover {
+    --background: var(--ion-color-primary);
+}
+
+ion-button ion-icon {
+    margin-left: 8px;
+}
+@keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+}
+  
+#errEmail {
+    color: red;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 5px;
+    background-color: rgba(255, 0, 0, 0.1); 
+    border-radius: 3px;
+    font-size: 0.9rem; 
+    z-index: 1000;
+    animation: slideInRight 0.5s ease-out; 
+}
+  
+#errPass {
+    color: red;
+    position: absolute;
+    top: 25px; 
+    right: 0;
+    padding: 5px;
+    background-color: rgba(255, 0, 0, 0.1);
+    border-radius: 3px;
+    font-size: 0.9rem;
+    z-index: 1000;
+    animation: slideInRight 0.5s ease-out; 
+}
+
