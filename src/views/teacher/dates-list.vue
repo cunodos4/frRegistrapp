@@ -24,13 +24,16 @@ const loading = ref<boolean>(true); // Indicador de carga
 const backButton = () => {
   router.back();
 };
-  const storage = new Storage();
-  await storage.create();
-  const id = storage.get('id');
+const id = ref<string | null>(null);
+
+
 
 // Esperar a que los datos estén listos
-onMounted(() => {
-  loading.value = false; // Asume que el composable termina de cargar
+onMounted(async () => {
+  loading.value = false; 
+  const storage = new Storage();
+  await storage.create();
+  id.value = await storage.get('id');// Asume que el composable termina de cargar
 });
 </script>
 

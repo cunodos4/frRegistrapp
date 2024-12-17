@@ -1,89 +1,86 @@
-<script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, 
-  IonTitle,IonContent, IonGrid,IonRow, IonCol, IonButton } from '@ionic/vue';
-import { useAuthStore } from '../../stores/authStore';
-const  { user , logOut} = useAuthStore();
+<script setup  lang="ts">
+import { IonPage, IonContent, IonHeader, 
+        IonToolbar, IonTitle,  IonButton
+      } from '@ionic/vue';
+import { useAuthStore } from '@/stores/authStore'
+import { ref } from "vue";
+import { BarcodeScanner } from "@capacitor-mlkit/barcode-scanning";
+import axios from "axios";
+import { Storage } from '@ionic/storage';
 
-const clases =  [
-        { id: '09_D', name: 'Base de datos 1'},
-        { id: '03_D', name: 'Desarrolla una app con Ionic'},
-        { id: '03_V', name: 'Cómo contar chistes, ser gracioso y no morir en el intento'},
-        { id: '04_D', name: 'Ingenieria aeroespacial'}
-]
+// Estado reactivo para el mensaje
+const mensaje = ref("");
+
+// Función para escanear el código QR
+const escanearCodigo = async () => {
+
+  try {
+    // Escanea el código QR
+    const result = await BarcodeScanner.scan();
+    if (result?.barcodes?.length > 0) {
+      const qrData = result.barcodes[0].rawValue; // Datos del QR
+
+      // Se asume que el QR contiene "rut|idFecha"
+      const [rut, idFecha] = qrData.split("|");
+      if (rut && idFecha) {
+        await enviarAsistencia(rut, idFecha);
+      } else {
+        mensaje.value = "Código QR inválido.";
+      }
+    } else {
+      mensaje.value = "No se detectó ningún código QR.";
+    }
+  } catch (error) {
+    console.error("Error al escanear el QR:", error);
+    mensaje.value = "Error al escanear el código QR.";
+  }
+};
+
+// Función para enviar asistencia al backend
+const enviarAsistencia = async (rut: any, idFecha: any ) => {
+  const storage = new Storage;
+  await storage.create();
+  try {
+    // Configuración de la solicitud al backend
+    const token = await storage.get("token") // Sustituye esto con tu lógica de obtención del token
+    const config = {
+      headers: { Authorization: `Bearer ${token}` }
+    };
+
+    const response = await axios.put(
+      `https://api-registrapp-nx3w.onrender.com/api/clases/update/${rut}/${idFecha}`,
+      {}, // Cuerpo vacío porque los datos están en los parámetros de la URL
+      config
+    );
+
+    if (response.data.status) {
+      mensaje.value = "Asistencia marcada correctamente.";
+    } else {
+      mensaje.value = "No se pudo actualizar la asistencia.";
+    }
+  } catch (error) {
+    console.error("Error al enviar asistencia:", error);
+    mensaje.value = "Error al marcar la asistencia.";
+  }
+};
+
+
+const { user, logOut } =useAuthStore()
+
 </script>
+
 
 <template>
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Bienvenido {{ user }}</ion-title>
+        <ion-title>Escanear Qr de : {{ user }}</ion-title>
       </ion-toolbar>
     </ion-header>
-    
-    <ion-content :fullscreen="true">
-      <section>
-        <ion-grid id="custom-table">
-          <!-- Encabezados de la tabla -->
-          <ion-row id="header-row">
-            <ion-col>Sección</ion-col>
-            <ion-col>Materia</ion-col>
-          </ion-row>
-
-          <!-- Filas de datos -->
-          <ion-row v-for="(clase, index) in clases" :key="index" id="data-row">
-            <ion-col><p>{{ clase.id }}</p></ion-col>
-            <ion-col>
-              <router-link to="/home-studen/cam-view">{{ clase.name }}</router-link>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </section>
-     
-      <ion-button  router-link="/login" @click.prevent="logOut()">Cerrar sesión</ion-button>
+    <ion-content>
+      <ion-button @click="escanearCodigo">Escanear Código QR</ion-button>
+      <ion-text v-if="mensaje">{{ mensaje }}</ion-text>
+      <ion-button router-link="/login" @click.prevent="logOut()">X</ion-button>
     </ion-content>
   </ion-page>
 </template>
-
-<style scoped>
-/* Estilo de la tabla */
-#custom-table {
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-#header-row {
-  background-color: #1976D2; /* Color de encabezado similar al primario de Vuetify */
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  padding: 12px 0;
-}
-
-#data-row {
-  border-bottom: 1px solid #e0e0e0;
-  padding: 12px 0;
-  text-align: center;
-  transition: background-color 0.3s;
-}
-
-#data-row:hover {
-  background-color: #f5f5f5; /* Color de hover similar al estilo de Vuetify */
-}
-
-ion-col {
-  text-align: center;
-}
-
-/* Enlaces de la tabla */
-a {
-  color: #1976D2; /* Azul de Vuetify */
-  text-decoration: none;
-}
-
-a:hover {
-  color: red blue;
-  text-decoration: underline;
-}
-</style>

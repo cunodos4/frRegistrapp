@@ -1,19 +1,16 @@
 import axios  from 'axios';
 import { isAxiosError } from 'axios';
-import { Storage } from '@ionic/storage';
 
 
 
 
 export const loginAction = async (email: string, password: string)=>{
-    const storage = new Storage();
-    storage.create();
     try {
-       const { data } = await axios.post(`https://registraapp-api.onrender.com/api/user/login`,{
+       const { data } = await axios.post(`https://api-registrapp-nx3w.onrender.com/api/user/login`,{
             email,
             contrasena: password
        });
-       console.log(data.id);
+
        return {
             estatus: 'ok',
             id: data.id,

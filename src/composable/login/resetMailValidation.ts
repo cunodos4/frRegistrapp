@@ -1,9 +1,11 @@
 
 import { useForm } from 'vee-validate';
 import * as yup from 'yup';
-import { useNavigation } from '../../composable/navegationComposables';
+import {useRouter} from 'vue-router';
+
 
 export function validation(){
+    const router = useRouter();
     const schema = yup.object({
         email: yup.string()
         .email('Email no es válido')
@@ -14,10 +16,10 @@ export function validation(){
     const { errors, handleSubmit, defineField } = useForm({
         validationSchema: schema,
     });
-    const { goChangePasswordForm } = useNavigation();
+    
     const onSubmit  = handleSubmit(values => { 
         console.log(JSON.stringify(values))
-        goChangePasswordForm()
+        router.push('/pass-form')
     });
     const [email, emailAttrs] = defineField('email');
 

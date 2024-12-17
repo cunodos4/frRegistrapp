@@ -2,11 +2,9 @@
 import { IonContent,  IonPage, IonButton, IonItem, IonIcon, IonInput } from '@ionic/vue';
 import { chevronForward, bug, qrCode, eye, eyeOff } from 'ionicons/icons';
 import { validation, passVisibility} from '../../composable/login/loginValidation';
-import { useNavigation } from '../../composable/navegationComposables';
 
 const { isVisible, toggleVisibility } = passVisibility();
 const { onSubmit, email, emailAttrs, password, passwordAttrs, errors } = validation();
-const { passchange } = useNavigation();
 
 </script>
 
@@ -41,7 +39,7 @@ const { passchange } = useNavigation();
         </section>
         <section id="wrapper">
             <ion-item>
-                <ion-button @click="passchange">Recuperar contraseña</ion-button>
+                <router-link to="/pass-reset">Recupera contraseña</router-link>
             </ion-item>
         </section>
     </ion-content>

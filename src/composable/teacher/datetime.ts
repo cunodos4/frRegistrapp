@@ -15,9 +15,14 @@ export function dateCompo() {
   // Función para obtener datos de forma independiente
   const fetchData = async () => {
     const data = await getDates(); // Llama al método para obtener los datos
-    dates.value = data.clases; // Asegúrate de que dates.value sea el arreglo 'clases'
+  
+    if (data && Array.isArray(data.clases)) {
+      dates.value = data.clases; // Si data.clases es válido, asigna el valor
+    } else {
+      console.warn('No se encontraron datos de clases.');
+      dates.value = []; // Asigna un arreglo vacío si no hay datos
+    }
   };
-
   // Llama a fetchData de forma asíncrona pero sin interferir en setup()
   onMounted(() => {
     fetchData(); // Ejecuta la función de manera controlada

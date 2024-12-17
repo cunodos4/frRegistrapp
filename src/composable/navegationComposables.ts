@@ -24,7 +24,6 @@ export async function useNavigation(){
     function goDatePage(){
         router.push('/date-list')
     }
-
       
 
       

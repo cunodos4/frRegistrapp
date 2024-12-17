@@ -81,7 +81,6 @@ export const useAuthStore = defineStore('auth', async ()=> {
 
 
 */
-
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import { Storage } from '@ionic/storage';
@@ -97,8 +96,12 @@ export const useAuthStore = defineStore('auth', () => {
   const rut = ref<string | undefined>('');
   const AuthStatus = ref<string>(status.checking);
 
-  // Crear el almacenamiento de Ionic
-  const storage = new Storage();
+  // Crear el almacenamiento de Ionic como singleton
+  const storagePromise = (async () => {
+    const storage = new Storage();
+    await storage.create();
+    return storage;
+  })();
 
   // Función para iniciar sesión
   const login = async (email: string, password: string) => {
@@ -107,6 +110,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (!loginResp.estatus) {
         return false;
       }
+
       // Actualizar los valores en el store
       id.value = loginResp.id;
       user.value = loginResp.nombre;
@@ -116,7 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
       AuthStatus.value = status.Authenticated;
 
       // Guardar los datos en el almacenamiento
-      await storage.create();  // Esto puede ir aquí, cuando se realiza el login
+      const storage = await storagePromise;
       await storage.set('token', loginResp.token);
       await storage.set('id', loginResp.id);
       await storage.set('user', loginResp.nombre);
@@ -140,6 +144,7 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = '';
 
     // Eliminar los datos del almacenamiento
+    const storage = await storagePromise;
     await storage.remove('token');
     await storage.remove('user');
     await storage.remove('rut');
@@ -156,6 +161,7 @@ export const useAuthStore = defineStore('auth', () => {
     Rol,
     token,
     AuthStatus,
+    storagePromise,
 
     // Acciones
     login,
@@ -171,3 +177,4 @@ export const useAuthStore = defineStore('auth', () => {
     isAlumno: computed(() => Rol.value === rol.alumno),
   };
 });
+

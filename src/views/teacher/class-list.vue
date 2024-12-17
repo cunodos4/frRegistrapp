@@ -1,16 +1,38 @@
 <script setup lang="ts">
-import { ref, ComponentPublicInstance } from 'vue'
+import { ref, ComponentPublicInstance, onMounted } from 'vue'
 import { IonPage, IonHeader, IonToolbar, 
   IonTitle,IonContent, IonRow, IonCol, IonButtons, IonIcon, IonItem, 
   IonModal, IonButton } from '@ionic/vue';
-import { arrowBack, checkmarkCircle, close } from 'ionicons/icons';
+import { checkmarkCircle, close } from 'ionicons/icons';
+import { updateAsistencia } from '@/composable/student/updateActionClass'
 import QrcodeVue from 'vue-qrcode';
-import { useNavigation } from '../../composable/navegationComposables';
+import { getClasesByUserAndRamo } from '@/composable/student/getClases';
 
-const { backButton} = useNavigation();
+const qrValue = ref<string>("");
 
-const qrValue = ref<string>("https://www.duoc.cl/");
 
+const rut: string  = "18395024-k";
+const idFecha = 1;
+
+const generateQrCode = async () => {
+  try {
+    // Llamada a tu función de Axios
+    const response = await updateAsistencia(rut, idFecha);
+
+    // Asigna un valor al QR
+    qrValue.value = JSON.stringify({
+      status: response.data.status,
+      msg: response.data.msg,
+      rut: rut,
+      idFecha: idFecha
+    });
+
+    console.log("QR generado:", qrValue.value);
+  } catch (error) {
+    console.error("Error al generar el QR:", error);
+    qrValue.value = "Error al generar el QR"; // Valor por defecto en caso de error
+  }
+};
 const page = ref(null);
 const modal = ref<ComponentPublicInstance | null>(null);
 
@@ -21,28 +43,51 @@ const modal = ref<ComponentPublicInstance | null>(null);
   function canDismiss(data?: any, role?: string) {
     return   role !== 'gesture';
   }
-const alumnos =  [
-        {name: 'Juan Soto', presente: true},
-        {name: 'Elba surita', presente: false},
-        {name: 'Francisca del campo', presente: true},
-        {name: 'Pedro Díaz', presente: false}
-]
+  /*AA*/
+  // Estados reactivas
+const alumnos = ref<{ name: string; presente: boolean }[]>([]);
+const loading = ref(true);
+const error = ref<string | null>(null);
+
+// Datos de ejemplo (IDs y token)
+const userId = 2; // ID del usuario
+const ramoId = 1; // ID del ramo
+
+// Obtener y mapear los datos
+const fetchClases = async () => {
+  try {
+    const response = await getClasesByUserAndRamo(userId, ramoId);
+    
+    // Mapea los datos a la estructura esperada
+    alumnos.value = response.clases.map((clase: any) => ({
+      name: `${clase.usuario.primerNombre} ${clase.usuario.apellidoPaterno}`, // Puedes agregar lógica para obtener nombres reales
+      presente: clase.asistencia,
+    }));
+  } catch (err: any) {
+    console.error("Error al cargar las clases:", err);
+    error.value = "Error al cargar los datos.";
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Llamada inicial
+onMounted(() => {
+  fetchClases();
+});
 </script>
 
 <template>
     <ion-page>
       <ion-header>
         <ion-toolbar id="toolbar">
-          <ion-buttons slot="start">
-            <ion-icon slot="icon-only" :icon="arrowBack" @click="backButton"></ion-icon>
-          </ion-buttons>
           <ion-title id="page-title">Nombre del curso-sección</ion-title>
         </ion-toolbar>
       </ion-header>
       
       <ion-content :fullscreen="true">
         <ion-item id="BtnModel">
-          <ion-button id="open-modal" expand="block">Generar QR.</ion-button>
+          <ion-button id="open-modal" expand="block" @click="generateQrCode">Generar QR.</ion-button>
         </ion-item>
         <ion-modal ref="modal" trigger="open-modal" :can-dismiss="canDismiss" :presenting-element="page">
         <ion-header>

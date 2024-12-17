@@ -23,7 +23,7 @@ const routes: Array<RouteRecordRaw> = [
   },
    
   {
-    path: '/pass-form',
+    path: '/pass-form/',
     name: 'PassForm',
     component: ()=> import('../views/login/pass-change-form.vue'),
             
